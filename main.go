@@ -7,6 +7,11 @@ import (
 	"syscall"
 )
 
+func must(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
 func main() {
 	switch os.Args[1] {
 	case "run":
@@ -32,6 +37,12 @@ func parent() {
 
 }
 func child() {
+	must(syscall.Mount("rootfs", "rootfs", "", syscall.MS_BIND, ""))
+	must(os.MkdirAll("roots/oldrootfs", 0700))
+	must(syscall.PivotRoot("rootfs", "rootfs/oldrootfs"))
+	must(os.Chdir("/"))
+	//ignore
+	//hi
 	cmd := exec.Command(os.Args[2], os.Args[3:]...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -42,7 +53,3 @@ func child() {
 		os.Exit(1)
 	}
 }
-
-/*func parent(){
-	os.exec.Command("
-dd}*/
